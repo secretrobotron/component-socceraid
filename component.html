@@ -1,0 +1,170 @@
+<polymer-element name="ceci-socceraid"
+  attributes="goals throwins redcards goalpledge throwinpledge redcardpledge"
+  extends="ceci-element">
+  <ceci-definition>
+    {
+      "tags": ["socceraid", "donate"],
+      "thumbnail": "./thumbnail.png",
+      "name": "SoccerAid",
+      "broadcasts": {
+      },
+      "listeners": {
+        "submit": {
+          "label": "Submit Donation",
+          "description": "Submits the sum as a donation.",
+          "default": "green"
+        }
+      },
+      "attributes": {
+        "goals": {
+          "description": "Number of goals.",
+          "label": "Goals",
+          "listener": true
+        },
+        "throwins": {
+          "description": "Number of throw-ins.",
+          "label": "Throw-ins",
+          "listener": true
+        },
+        "redcards": {
+          "description": "Number of red cards.",
+          "label": "Red cards",
+          "listener": true
+        },
+        "goalpledge": {
+          "description": "Pledge per goal.",
+          "label": "Pledge per goal",
+          "listener": true
+        },
+        "throwinpledge": {
+          "description": "Pledge per throw-in.",
+          "label": "Pledge per throw-in",
+          "listener": true
+        },
+        "redcardpledge": {
+          "description": "Pledge per red card.",
+          "label": "Pledge per red card",
+          "listener": true
+        }
+      }
+    }
+  </ceci-definition>
+  <template>
+    <style>
+      :host {
+        display: block;
+        min-height: 50px;
+        width: 100%;
+        font-family: sans-serif;
+        font-size: 12pt;
+        background: white;
+        padding: 1em 0;
+      }
+
+      :host .number {
+        float: right;
+      }
+
+      :host h4 {
+        font-weight: 600;
+        color: #5B6270;
+        font-size: 18px;
+        text-transform: uppercase;
+        line-height: 25px;
+        margin: 0px 0px 10px;
+        padding-bottom: 0px;
+        border-bottom: 0px;
+        text-align: left;
+      }
+
+      :host .section {
+        background-color: transparent;
+        padding: 0;
+        border-bottom: 1px solid #616368;
+        padding: 5px 0;
+        font-size: 14px;
+      }
+
+      :host #total {
+        border-top: 1px solid #31353C;
+        border-bottom: 0;
+      }
+
+      :host #container {
+        margin: 3px 10px;
+      }
+    </style>
+    <div id="container">
+      <div class="section">
+        <div>Goals: <span class="number">{{goals}}</span></div>
+        <div>Amount per goal: <span class="number">£{{goalpledge}}</span></div>
+        <div>Donation: <span class="number"><strong>£{{_goalsDonation}}</strong></span></div>
+      </div>
+      <div class="section">
+        <div>Throw-ins: <span class="number">{{throwins}}</span></div>
+        <div>Amount per throw-in: <span class="number">£{{throwinpledge}}</span></div>
+        <div>Donation: <span class="number"><strong>£{{_throwinsDonation}}</strong></span></div>
+      </div>
+      <div class="section">
+        <div>Red cards: <span class="number">{{redcards}}</span></div>
+        <div>Amount per red card: <span class="number">£{{redcardpledge}}</span></div>
+        <div>Donation: <span class="number"><strong>£{{_redcardsDonation}}</strong></span></div>
+      </div>
+      <div class="section" id="total">
+        <h4>Total: <span class="number">£{{_total}}</span></h4>
+      </div>
+    </div>
+    <shadow></shadow>
+  </template>
+  <script>
+    Polymer('ceci-socceraid', {
+      goals: 0,
+      throwins: 0,
+      redcards: 0,
+      goalpledge: 1.00,
+      throwinpledge: 1.00,
+      redcardpledge: 1.00,
+      _goalsDonation: 0,
+      _throwinsDonation: 0,
+      _redcardsDonation: 0,
+      _total: 0,
+      _calculate: function () {
+        var goals = parseInt(this.goals);
+        var throwins = parseInt(this.throwins);
+        var redcards = parseInt(this.redcards);
+
+        var goalPledge = parseFloat(this.goalpledge);
+        var throwinPledge = parseFloat(this.throwinpledge);
+        var redcardPledge = parseFloat(this.redcardpledge);
+
+        goals = isNaN(goals) ? 0 : goals;
+        throwins = isNaN(throwins) ? 0 : throwins;
+        redcards = isNaN(redcards) ? 0 : redcards;
+
+        goalPledge = isNaN(goalPledge) ? 0 : goalPledge;
+        throwinPledge = isNaN(throwinPledge) ? 0 : throwinPledge;
+        redcardPledge = isNaN(redcardPledge) ? 0 : redcardPledge;
+
+        this._goalsDonation = (goalPledge * goals).toFixed(2);
+        this._throwinsDonation = (throwinPledge * throwins).toFixed(2);
+        this._redcardsDonation = (redcardPledge * redcards).toFixed(2);
+
+        this._total = (goals*goalPledge + throwins*throwinPledge + redcards*redcardPledge).toFixed(2);
+
+        this.goalpledge = goalPledge.toFixed(2);
+        this.throwinPledge = throwinPledge.toFixed(2);
+        this.redcardPledge = redcardPledge.toFixed(2);
+      },
+      ready: function () {
+        this.super();
+      },
+      attributeChanged: function () {
+        this._calculate();
+      },
+      submit: function () {
+        window.open('https://secure.unicef.org.uk/OnceOff/PersonalDetails?appealId=ed3a4347-a1bf-4f33-9f40-ea799899916b&donationtype=onceoff&amount=' + this._total,
+          'UNICEF_Window', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no');
+      }
+    });
+  </script>
+</polymer-element>
